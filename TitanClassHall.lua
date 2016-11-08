@@ -1,17 +1,16 @@
 -- Titan [Class Hall]
 -- Description: Titan plug-in to open your Order Hall
 -- Author: r1fT
--- Version: 1.0.1.70100
+-- Version: 1.0.3.70100
 
 local _G = getfenv(0);
 local TITAN_ClassHall_ID = "ClassHall";
-local TITAN_ClassHall_VER = "1.0.1.70000";
+local TITAN_ClassHall_VER = "1.0.3.70000";
 local updateTable = {TITAN_ClassHall_ID, TITAN_PANEL_UPDATE_BUTTON};
 local buttonlabel = "Titan Panel [Class Hall]"
 local L = LibStub("AceLocale-3.0"):GetLocale("Titan", true)
 local AceTimer = LibStub("AceTimer-3.0")
-local currencyId = C_Garrison.GetCurrencyTypes(LE_GARRISON_TYPE_7_0)
-local NoResearch = true
+local ClassHallProfile = UnitName("player").."-"..GetRealmName()
 
 function ClassHallGetIcon()
 	ClassIcon = UnitClass("player")
@@ -19,104 +18,32 @@ function ClassHallGetIcon()
 	return ClassIcon
 end
 
-function TitanPanelClassHallButton_OnLoad(self)
+function ClassHallInitDB()
+	if type(TPClassHall) ~= "table" then
+		TPClassHall = {}
+	end
+	if type(TPClassHall.profiles) ~= "table" then
+		TPClassHall.profiles = {}
+	end
+	if type(TPClassHall.ignores) ~= "table" then
+		TPClassHall.ignores = {}
+	end
+	if type(TPClassHall.profiles[ClassHallProfile]) ~= "table" then
+		TPClassHall.profiles[ClassHallProfile] = {}
+	end
+	for name, missions in pairs(TPClassHall.profiles) do
+		for i, mission in ipairs(missions) do
+			if type(mission) == "table" and not mission.missionEndTime then
+				mission.missionEndTime = mission.timeComplete
+			end
+		end
+	end
 	
-	self.registry = {
-		id = TITAN_ClassHall_ID,
-		version = TITAN_ClassHall_VER,
-		category = "Information",
-		menuText = "Titan Panel [Class Hall]",
-		buttonTextFunction = "TitanPanelClassHallButton_GetButtonText", 
-		tooltipTitle = "Class Hall",
-		tooltipTextFunction = "TitanPanelClassHallButton_GetTooltipText", 
-		icon = "Interface\\Addons\\TitanClassHall\\Icons\\"..ClassHallGetIcon(),
-		iconWidth = 16,
-		controlVariables = {
-			ShowIcon = true,
-			ShowLabelText = true,
-			DisplayOnRightSide = true
-		},
-		savedVariables = {
-			ShowIcon = 1,
-			DisplayOnRightSide = true
-		}
-	};
-	self:RegisterEvent("PLAYER_ENTERING_WORLD");
 end
 
-function TitanPanelClassHallButton_OnEvent(self, event, ...)
-	if (event == "PLAYER_ENTERING_WORLD") then
-		self:RegisterEvent("GARRISON_FOLLOWER_CATEGORIES_UPDATED");
-		self:RegisterEvent("GARRISON_FOLLOWER_ADDED");
-		self:RegisterEvent("GARRISON_FOLLOWER_REMOVED");
-		self:RegisterEvent("GARRISON_TALENT_COMPLETE");
-		self:RegisterEvent("GARRISON_TALENT_UPDATE");
-		self:RegisterEvent("GARRISON_SHOW_LANDING_PAGE");
-	end
-
-	if event == "GARRISON_FOLLOWER_CATEGORIES_UPDATED" then
-		self:SetScript("OnUpdate", TitanPanelClassHallButton_OnUpdate)
-	end
-	
-	if event == "GARRISON_FOLLOWER_ADDED" then
-		self:SetScript("OnUpdate", TitanPanelClassHallButton_OnUpdate)
-	end
-	
-	if event == "GARRISON_FOLLOWER_REMOVED" then
-		self:SetScript("OnUpdate", TitanPanelClassHallButton_OnUpdate)
-	end
-	
-	if event == "GARRISON_TALENT_COMPLETE" then
-		self:SetScript("OnUpdate", TitanPanelClassHallButton_OnUpdate)
-	end
-	
-	if event == "GARRISON_TALENT_UPDATE" then
-		self:SetScript("OnUpdate", TitanPanelClassHallButton_OnUpdate)
-	end
-	
-	if event == "GARRISON_SHOW_LANDING_PAGE" then
-		self:SetScript("OnUpdate", TitanPanelClassHallButton_OnUpdate)
-	end
-end
-
-function TitanPanelClassHallButton_OnUpdate(self)
-	TitanPanelPluginHandle_OnUpdate(updateTable)
-	local follower_categoryInfo = {}
-	do
-		if C_Garrison.GetLandingPageGarrisonType() ~= LE_GARRISON_TYPE_7_0 then return end
-		follower_categoryInfo = C_Garrison.GetClassSpecCategoryInfo(LE_FOLLOWER_TYPE_GARRISON_7_0)
-		C_Garrison.RequestClassSpecCategoryInfo(LE_FOLLOWER_TYPE_GARRISON_7_0)
-	end
-	local mission_categoryInfo = {}
-	do
-		if C_Garrison.GetLandingPageGarrisonType() ~= LE_GARRISON_TYPE_7_0 then return end
-		mission_categoryInfo = C_Garrison.GetInProgressMissions(LE_FOLLOWER_TYPE_GARRISON_7_0)
-	end
-	local research_categoryInfo = {}
-	do
-		if C_Garrison.GetLandingPageGarrisonType() ~= LE_GARRISON_TYPE_7_0 then return end
-		research_categoryInfo = C_Garrison.GetLooseShipments(C_Garrison.GetLandingPageGarrisonType(LE_GARRISON_TYPE_7_0))
-	end
-	local talent_categoryInfo = {}
-	do
-		if C_Garrison.GetLandingPageGarrisonType() ~= LE_GARRISON_TYPE_7_0 then return end
-		talent_categoryInfo = C_Garrison.GetTalentTrees(LE_GARRISON_TYPE_7_0, select(C_Garrison.GetLandingPageGarrisonType(LE_GARRISON_TYPE_7_0), UnitClass("player")))
-	end
-	self:SetScript("OnUpdate", nil)
-end
-
-function TitanPanelClassHallButton_OnClick(self, button)
-	if (button == "LeftButton") then
-		GarrisonLandingPage_Toggle()
-	end
-end
-
-function TitanPanelClassHallButton_GetButtonText(id)
-	return buttonlabel, "|r"
-end
-
-function TitanPanelClassHallButton_GetTooltipText()
-	ClassHallButtonToolTip = "\n"
+function ClassHallSaveToonData()
+	ClassHallInitDB()
+	local ClassHallProfile_Save = UnitName("player").."-"..GetRealmName()
 	local currencyId = C_Garrison.GetCurrencyTypes(LE_GARRISON_TYPE_7_0)
 	local follower_categoryInfo = {}
 	do
@@ -139,63 +66,211 @@ function TitanPanelClassHallButton_GetTooltipText()
 		if C_Garrison.GetLandingPageGarrisonType() ~= LE_GARRISON_TYPE_7_0 then return end
 		talent_categoryInfo = C_Garrison.GetTalentTrees(LE_GARRISON_TYPE_7_0, select(C_Garrison.GetLandingPageGarrisonType(LE_GARRISON_TYPE_7_0), UnitClass("player")))
 	end
+	local currency_categoryInfo = {}
+	do
+		if C_Garrison.GetLandingPageGarrisonType() ~= LE_GARRISON_TYPE_7_0 then return end
+		currency_categoryInfo = GetCurrencyInfo(currencyId)
+	end
+	GetCurrencyInfo(currencyId)
+	wipe(TPClassHall.profiles[ClassHallProfile_Save])
+	if follower_categoryInfo ~= nil then
+		if TPClassHall.profiles[ClassHallProfile_Save].follower ~= table then
+			TPClassHall.profiles[ClassHallProfile_Save].follower = {}
+		else
+			wipe(TPClassHall.profiles[ClassHallProfile_Save].follower)
+		end
+		for _, info in ipairs(follower_categoryInfo) do
+			tinsert(TPClassHall.profiles[ClassHallProfile_Save].follower, info)
+		end
+	end
+	if mission_categoryInfo ~= nil then
+		if TPClassHall.profiles[ClassHallProfile_Save].mission ~= table then
+			TPClassHall.profiles[ClassHallProfile_Save].mission = {}
+		else
+			wipe(TPClassHall.profiles[ClassHallProfile_Save].mission)
+		end
+		for _, info in ipairs(mission_categoryInfo) do
+			tinsert(TPClassHall.profiles[ClassHallProfile_Save].mission, info)
+		end
+	end
+	if research_categoryInfo ~= nil then
+		if TPClassHall.profiles[ClassHallProfile_Save].research ~= table then
+			TPClassHall.profiles[ClassHallProfile_Save].research = {}
+		else
+			wipe(TPClassHall.profiles[ClassHallProfile_Save].research)
+		end
+		for _, info in ipairs(research_categoryInfo) do
+			local info
+			local name, texture, shipmentCapacity, shipmentsReady, shipmentsTotal, creationTime, duration, timeleftString, itemName, itemTexture, _, itemID
+			for k, v in pairs(C_Garrison.GetLooseShipments(3) or {}) do
+				name, texture, shipmentCapacity, shipmentsReady, shipmentsTotal, creationTime, duration, timeleftString, itemName, itemTexture, _, itemID = C_Garrison.GetLandingPageShipmentInfoByContainerID(v)
+				if itemID == 139390 and creationTime and duration and name then
+					if not info then
+						info = {rewards = {{}}}
+					end
+					info.isArtifact = true
+					info.name = name
+					info.missionEndTime = creationTime + duration
+					if GetServerTime() >= info.missionEndTime then
+						info.isComplete = true
+						info.missionEndTime = nil
+						shipmentsReady = shipmentsReady + 1
+						if shipmentsReady > shipmentsTotal then
+							shipmentsReady = shipmentsTotal
+						end
+					elseif shipmentsReady > 0 then
+						info.isComplete = true
+						info.missionEndTime = nil
+					else
+						info.isComplete = nil
+					end
+					info.artifactReady = shipmentsReady
+					info.artifactTotal = shipmentsTotal
+					info.followerTypeID = LE_FOLLOWER_TYPE_GARRISON_7_0
+					info.typeIcon = texture
+					info.rewards[1].itemID = itemID
+					info.rewards[1].quantity = 1
+					tinsert(TPClassHall.profiles[ClassHallProfile_Save].research, info)
+					break
+				end
+			end
+		end
+	end
+	if talent_categoryInfo ~= nil then
+		if TPClassHall.profiles[ClassHallProfile].talent ~= table then
+			TPClassHall.profiles[ClassHallProfile].talent = {}
+		else
+			wipe(TPClassHall.profiles[ClassHallProfile].talent)
+		end
+		for _, info in ipairs(talent_categoryInfo) do
+			tinsert(TPClassHall.profiles[ClassHallProfile].talent, info)
+		end
+	end
+	if talent_categoryInfo ~= nil then
+		if TPClassHall.profiles[ClassHallProfile].talent ~= table then
+			TPClassHall.profiles[ClassHallProfile].talent = {}
+		else
+			wipe(TPClassHall.profiles[ClassHallProfile].talent)
+		end
+		for _, info in ipairs(talent_categoryInfo) do
+			tinsert(TPClassHall.profiles[ClassHallProfile].talent, info)
+		end
+	end
+	if currency_categoryInfo ~= nil then
+		if TPClassHall.profiles[ClassHallProfile].currency ~= table then
+			TPClassHall.profiles[ClassHallProfile].currency = {}
+		else
+			wipe(TPClassHall.profiles[ClassHallProfile].currency)
+		end
+		local currency, amount, icon = GetCurrencyInfo(currencyId)
+		tinsert(TPClassHall.profiles[ClassHallProfile].currency, currency)
+		tinsert(TPClassHall.profiles[ClassHallProfile].currency, amount)
+		tinsert(TPClassHall.profiles[ClassHallProfile].currency, icon)
+	end
+end
+
+function TitanPanelClassHallButton_OnLoad(self)
+	
+	self.registry = {
+		id = TITAN_ClassHall_ID,
+		version = TITAN_ClassHall_VER,
+		category = "Information",
+		menuText = "Titan Panel [Class Hall]",
+		buttonTextFunction = "TitanPanelClassHallButton_GetButtonText", 
+		tooltipCustomFunction = ClassHallMakeToolTip,
+		icon = "Interface\\Addons\\TitanClassHall\\Icons\\"..ClassHallGetIcon(),
+		iconWidth = 16,
+		controlVariables = {
+			ShowIcon = true,
+			ShowLabelText = true,
+			DisplayOnRightSide = true
+		},
+		savedVariables = {
+			ShowIcon = 1,
+			DisplayOnRightSide = true
+		}
+	};
+	ClassHallInitDB()
+	ClassHallSaveToonData()
+	self:RegisterEvent("PLAYER_ENTERING_WORLD");
+end
+
+function TitanPanelClassHallButton_OnEvent(self, event, ...)
+	if (event == "PLAYER_ENTERING_WORLD") then
+		self:RegisterEvent("PLAYER_LEAVING_WORLD");
+	end
+
+	if event == "PLAYER_LEAVING_WORLD" then
+		self:SetScript("OnUpdate", ClassHallSaveToonData)
+	end
+end
+
+function TitanPanelClassHallButton_OnClick(self, button)
+	if (button == "LeftButton") then
+		GarrisonLandingPage_Toggle()
+	end
+end
+
+function TitanPanelClassHallButton_GetButtonText(id)
+	return buttonlabel, "|r"
+end
+
+function ClassHallMakeToolTip(self)
+	ClassHallSaveToonData()
+	GameTooltip:ClearLines()
+	GameTooltip:AddLine("Class Hall |cFF0000FF[|cFFFFFFFF"..ClassHallProfile.."|cFF0000FF]")
+	GameTooltip:AddLine("\n")
+	local NoResearch = true
+	local currencyId = C_Garrison.GetCurrencyTypes(LE_GARRISON_TYPE_7_0)
 	if C_Garrison.GetLandingPageGarrisonType() ~= LE_GARRISON_TYPE_7_0 then return end
 
-		local currency, amount, icon = GetCurrencyInfo(currencyId)
-		ClassHallButtonToolTip = ClassHallButtonToolTip.." |T"..icon..":0:0:0:2:64:64:4:60:4:60|t "..currency..":	|cFFFFFFFF"..amount.."\n"
+		local currency = TPClassHall.profiles[ClassHallProfile].currency[1]
+		local amount = TPClassHall.profiles[ClassHallProfile].currency[2]
+		local icon = TPClassHall.profiles[ClassHallProfile].currency[3]
+		GameTooltip:AddDoubleLine(" |T"..icon..":0:0:0:2:64:64:4:60:4:60|t |cFFFFE000"..currency..":", "|cFFFFFFFF"..amount,1,1,1, 1,1,1)
 
-		if #follower_categoryInfo > 0 then
-			ClassHallButtonToolTip = ClassHallButtonToolTip.."\n"
-			for _, info in ipairs(follower_categoryInfo) do
-				ClassHallButtonToolTip = ClassHallButtonToolTip.."|T"..info.icon..":0|t "..info.name..":	|cFFFFFFFF"..info.count.."/"..info.limit.."\n"
+		if #TPClassHall.profiles[ClassHallProfile].follower > 0 then
+			GameTooltip:AddLine("\n")
+			for _, info in ipairs(TPClassHall.profiles[ClassHallProfile].follower) do
+				GameTooltip:AddDoubleLine("|T"..info.icon..":0|t |cFFFFFFFF"..info.name..":", "|cFFFFFFFF"..info.count.."/"..info.limit,1,1,1, 1,1,1)
 			end
 		end
 		
-		if #mission_categoryInfo > 0 then
-			ClassHallButtonToolTip = ClassHallButtonToolTip.."\n|cFF00FF00Current Missions\n"
-			for _, info in ipairs(mission_categoryInfo) do
-				if info.timeLeftSeconds > 0 then
-					ClassHallButtonToolTip = ClassHallButtonToolTip..info.name..":	|cFFFFFFFF"..info.timeLeft.."\n"
+		if #TPClassHall.profiles[ClassHallProfile].mission > 0 then
+			GameTooltip:AddLine("\n")
+			GameTooltip:AddLine("|cFF00FF00Current Missions")
+			for _, info in ipairs(TPClassHall.profiles[ClassHallProfile].mission) do
+				local timeremaining = info.missionEndTime-GetServerTime()
+				if timeremaining > 0 then
+					local missiontimeremaining = ClassHallTimeFormat(timeremaining)
+					GameTooltip:AddDoubleLine("|cFFFFE000"..info.name..":", "|cFFFFFFFF"..missiontimeremaining,1,1,1, 1,1,1)
 				else
-					ClassHallButtonToolTip = ClassHallButtonToolTip..info.name..":	|cFF00FF00Compleated\n"
+					GameTooltip:AddDoubleLine("|cFFFFE000"..info.name..":", "|cFF00FF00Compleated",1,1,1, 1,1,1)
 				end
 			end
 		end
 		
-		if #research_categoryInfo > 0 then
-			ClassHallButtonToolTip = ClassHallButtonToolTip.."\n|cFF00FF00Current Research\n"
-			for _, info in ipairs(research_categoryInfo) do
-				research_string  = string.format("%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s",C_Garrison.GetLandingPageShipmentInfoByContainerID(info))
-				research_table = mysplit(research_string,",")				
-				for key, value in pairs(research_table) do
-					if key == 1 then
-						ClassHallButtonToolTip = ClassHallButtonToolTip..value..":	|cFFFFFFFF"
-					end
-					if key == 8 then
-						ClassHallButtonToolTip = ClassHallButtonToolTip..value.."\n"
-					end
+		if #TPClassHall.profiles[ClassHallProfile].research > 0 then
+			GameTooltip:AddLine("\n")
+			GameTooltip:AddLine("|cFF00FF00Current Research")
+			for _, info in ipairs(TPClassHall.profiles[ClassHallProfile].research) do
+				local timeremaining = info.missionEndTime-GetServerTime()
+				if timeremaining > 0 then
+					local missiontimeremaining = ClassHallTimeFormat(timeremaining)
+					GameTooltip:AddDoubleLine("|cFFFFE000"..info.name.." ("..info.artifactReady.."/"..info.artifactTotal.."):", "|cFFFFFFFF"..missiontimeremaining,1,1,1, 1,1,1)
 				end
 			end
 		end
 		
-		if #talent_categoryInfo > 0 then
-			for _, tree in ipairs(talent_categoryInfo) do
+		if #TPClassHall.profiles[ClassHallProfile].talent > 0 then
+			for _, tree in ipairs(TPClassHall.profiles[ClassHallProfile].talent) do
 				for _, info in ipairs(tree) do
 					if info.selected == true then
 						if info.researched == false then
 							NoResearch = false
-							local talenttimeremaing_days = string.format("%.1d", info.researchTimeRemaining/86400)
-							local talenttimeremaing_hours = string.format("%.1d", (info.researchTimeRemaining-(talenttimeremaing_days*86400))/3600)
-							if tonumber(talenttimeremaing_days) > 0 then
-								ClassHallButtonToolTip = ClassHallButtonToolTip..info.name..":	|cFFFFFFFF"..talenttimeremaing_days.." day "..talenttimeremaing_hours.." hr\n"
-							else
-								talenttimeremaing_min = string.format("%.1d", (info.researchTimeRemaining-(talenttimeremaing_hours*3600))/60)
-								if tonumber(talenttimeremaing_hours) > 0 then
-									ClassHallButtonToolTip = ClassHallButtonToolTip..info.name..":	|cFFFFFFFF"..talenttimeremaing_hours.." hr "..talenttimeremaing_min.." min\n"
-								else
-									ClassHallButtonToolTip = ClassHallButtonToolTip..info.name..":	|cFFFFFFFF"..talenttimeremaing_min.." min\n"
-								end
-							end
+							local timeremaining = (info.researchDuration+info.researchStaretTime)-GetServerTime()
+							local missiontimeremaining = ClassHallTimeFormat(timeremaining)
+							GameTooltip:AddDoubleLine("|cFFFFE000"..info.name..":", "|cFFFFFFFF"..missiontimeremaining,1,1,1, 1,1,1)
 						end
 					end
 					if info.tier == 5 then
@@ -205,19 +280,57 @@ function TitanPanelClassHallButton_GetTooltipText()
 					end
 				end
 				if NoResearch == true then
-					ClassHallButtonToolTip = ClassHallButtonToolTip.."|cFFFF0000No Class Hall Talent Research\n"
+					GameTooltip:AddLine("|cFFFF0000No Class Hall Talent Research")
 				end
 			end
 		end
-				
-	ClassHallButtonToolTip = ClassHallButtonToolTip.."\n|cff00ff00Left click for Class Hall report"
-	return ClassHallButtonToolTip
+
+	GameTooltip:AddLine("\n")			
+	GameTooltip:AddLine("|cff00ff00Left click for Class Hall report")
+	GameTooltip:AddLine("|cff00ff00Right click to view other characters")
+	GameTooltip:Show()
+	return 
 end
 
 function TitanPanelRightClickMenu_PrepareClassHallMenu()
 	TitanPanelRightClickMenu_AddTitle(TitanPlugins[TITAN_ClassHall_ID].menuText);
 	TitanPanelRightClickMenu_AddSpacer();
+	
+	for name, _ in pairs(TPClassHall.profiles) do
+		local info = {};
+		info.text = name;
+		if name == ClassHallProfile then 
+			info.checked = true;
+		else
+			info.checked = false;
+		end
+		info.func = function()
+			ClassHallProfile = name
+		end
+		UIDropDownMenu_AddButton(info, _G["UIDROPDOWNMENU_MENU_LEVEL"]);
+	end
+	TitanPanelRightClickMenu_AddSpacer();
 	TitanPanelRightClickMenu_AddCommand(L["TITAN_PANEL_MENU_HIDE"], TITAN_ClassHall_ID, TITAN_PANEL_MENU_FUNC_HIDE);
+end
+
+
+function ClassHallTimeFormat(remaining)
+	local seconds = remaining % 60
+	remaining = (remaining - seconds) / 60
+	local minutes = remaining % 60
+	remaining = (remaining - minutes) / 60
+	local hours = remaining % 24
+	local days = (remaining - hours) / 24
+	if days > 0 then
+		time_formated = days.." day "..hours.." hr"
+	else
+		if hours > 0 then
+			time_formated = hours.." hr "..minutes.." min"
+		else
+			time_formated = minutes.." min"
+		end
+	end
+	return time_formated
 end
 
 function mysplit(inputstr, sep)
