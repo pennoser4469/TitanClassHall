@@ -212,7 +212,6 @@ function TitanPanelClassHallButton_OnLoad(self)
 		}
 	};
 	ClassHallSaveToonData()
-	local buttonlabel = TPClassHall.profiles[ClassHallProfile].currency[1]..": |cffffffff"..TPClassHall.profiles[ClassHallProfile].currency[2].."|r"
 	self:RegisterEvent("PLAYER_ENTERING_WORLD");
 end
 
