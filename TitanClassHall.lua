@@ -1,7 +1,7 @@
 -- Titan [Class Hall]
 -- Description: Titan plug-in to open your Order Hall
 -- Author: r1fT
--- Version: 1.0.6.70100
+-- Version: 1.0.6.70100-release
 
 local _G = getfenv(0);
 local TITAN_ClassHall_ID = "ClassHall";
