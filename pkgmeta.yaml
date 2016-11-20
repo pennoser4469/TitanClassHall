@@ -1,0 +1,15 @@
+package-as: titan-classhall
+enable-nolib-creation: no
+
+ignore: # Files and directories beginning with a dot (such as .git) are automatically ignored, as is the pgkmeta file itself.
+    - README.md
+    - CHANGELOG.txt
+    - LICENSE.txt
+    - screenshot.jpg
+
+required-dependencies:
+    - 489-titan-panel
+
+manual-changelog: CHANGELOG.txt
+
+license-output: LICENSE.txt

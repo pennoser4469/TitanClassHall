@@ -1,0 +1,33 @@
+v1.1.0.70100
+				- Github Migration.
+
+v1.0.7.70100
+				- Fix Bug in tooltip.
+				
+v1.0.6.70100
+				- Bug Fix on Artifact Research.
+				- Bug Fix on Tooltip Creation
+
+v1.0.5.70100
+				- Added tracking for followers.
+				- Minor Bug fix for Order Resources.
+
+v1.0.4.70100
+				- Minor Bug fix on research timer.
+
+v1.0.3.70100
+				- Updated to allow multiple character tracking.
+				- Major Code Design Changes and Optimization.
+
+v1.0.2.70100
+				- Updated for 7.1 Release
+
+v1.0.1.70000
+				- Fixed a glitch with current followers not showing.
+				- Added Current Missions to tooltip.
+				- Added Current Research to tooltip.
+
+v1.0.0.70000
+				- Initial Release.
+
+New follower research will not update until zone change or Class Hall report is opened.
