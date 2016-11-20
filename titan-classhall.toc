@@ -1,8 +1,8 @@
 ## Interface: 70100
-## Title: Titan Panel [|cff008cffClass Hall|r] |cff00aa00@project-version@|r
+## Title: Titan Panel [|cff008cffClass Hall|r] |cff00aa00v1.1.0.70100|r
 ## Notes: Titan Panel plugin that opens your Class Hall
 ## Author: r1fT
-## Version: @project-version@
+## Version: v1.1.0.70100
 ## Dependencies: Titan
 ## X-Child-Of: Titan
 ## SavedVariables: TPClassHall

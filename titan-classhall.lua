@@ -1,11 +1,12 @@
 -- Titan [Class Hall]
 -- Description: Titan plug-in to open your Order Hall
 -- Author: r1fT
--- Version: @project-version@
+-- Version: v1.1.0.70100
+-- Hash: @project-hash@
 
 local _G = getfenv(0);
 local TITAN_ClassHall_ID = "ClassHall";
-local TITAN_ClassHall_VER = "@project-version@";
+local TITAN_ClassHall_VER = "v1.1.0.70100";
 local updateTable = {TITAN_ClassHall_ID, TITAN_PANEL_UPDATE_BUTTON};
 local buttonlabel = "Titan Panel [|cff008cffClass Hall|r]"
 local L = LibStub("AceLocale-3.0"):GetLocale("Titan", true)
