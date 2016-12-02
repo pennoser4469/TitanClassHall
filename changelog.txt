@@ -1,3 +1,6 @@
+v1.1.3.70100 - BETA
+				- Added the Option to Hide the Garrison Minimap Button.
+
 v1.1.2.70100
 				- Typo Correction on Line 268.
 

@@ -1,12 +1,12 @@
 -- Titan [Class Hall]
 -- Description: Titan plug-in to open your Order Hall
 -- Author: r1fT
--- Version: v1.1.1.70100
+-- Version: v1.1.3.70100 - BETA
 -- Hash: @project-hash@
 
 local _G = getfenv(0);
 local TITAN_ClassHall_ID = "ClassHall";
-local TITAN_ClassHall_VER = "v1.1.1.70100";
+local TITAN_ClassHall_VER = "v1.1.3.70100 - BETA";
 local updateTable = {TITAN_ClassHall_ID, TITAN_PANEL_UPDATE_BUTTON};
 local buttonlabel = "Titan Panel [|cff008cffClass Hall|r]"
 local L = LibStub("AceLocale-3.0"):GetLocale("Titan", true)
@@ -28,6 +28,9 @@ function ClassHallInitDB()
 	end
 	if type(TPClassHall.ignores) ~= "table" then
 		TPClassHall.ignores = {}
+	end
+	if TPClassHall.chbuttonstate == nil then
+		TPClassHall.chbuttonstate = "true"
 	end
 	if type(TPClassHall.profiles[ClassHallProfile]) ~= "table" then
 		TPClassHall.profiles[ClassHallProfile] = {}
@@ -219,6 +222,7 @@ end
 function TitanPanelClassHallButton_OnEvent(self, event, ...)
 	if (event == "PLAYER_ENTERING_WORLD") then
 		ClassHallSaveToonData()
+		HideClassHallButton()
 		self:RegisterEvent("PLAYER_LEAVING_WORLD");
 	end
 
@@ -347,8 +351,34 @@ function TitanPanelRightClickMenu_PrepareClassHallMenu()
 	end
 	TitanPanelRightClickMenu_AddSpacer();
 	TitanPanelRightClickMenu_AddCommand(L["TITAN_PANEL_MENU_HIDE"], TITAN_ClassHall_ID, TITAN_PANEL_MENU_FUNC_HIDE);
+	if TPClassHall.chbuttonstate == "true" then
+		local info = {};
+		info.text = "Hide Class Hall Button";
+		info.func = function()
+			TPClassHall.chbuttonstate = "false"
+			HideClassHallButton()
+		end
+		UIDropDownMenu_AddButton(info, _G["UIDROPDOWNMENU_MENU_LEVEL"]);
+	else
+		local info = {};
+		info.text = "Show Class Hall Button";
+		info.func = function()
+			TPClassHall.chbuttonstate = "true"
+			HideClassHallButton()
+		end
+		UIDropDownMenu_AddButton(info, _G["UIDROPDOWNMENU_MENU_LEVEL"]);
+	end
 end
 
+function HideClassHallButton()
+	if TPClassHall.chbuttonstate == "false" then
+		C_Timer.After(2, function()
+		GarrisonLandingPageMinimapButton:Hide()
+		end)
+	else
+		GarrisonLandingPageMinimapButton:Show()
+	end
+end
 
 function ClassHallTimeFormat(remaining)
 	local seconds = remaining % 60
