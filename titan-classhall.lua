@@ -267,7 +267,7 @@ function ClassHallMakeToolTip(self)
 					local missiontimeremaining = ClassHallTimeFormat(timeremaining)
 					GameTooltip:AddDoubleLine("|cFFFFE000"..info.name..":", "|cFFFFFFFF"..missiontimeremaining,1,1,1, 1,1,1)
 				else
-					GameTooltip:AddDoubleLine("|cFFFFE000"..info.name..":", "|cFF00FF00Compleated",1,1,1, 1,1,1)
+					GameTooltip:AddDoubleLine("|cFFFFE000"..info.name..":", "|cFF00FF00Completed",1,1,1, 1,1,1)
 				end
 			end
 		end

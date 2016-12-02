@@ -1,3 +1,6 @@
+v1.1.2.70100
+				- Typo Correction on Line 268.
+
 v1.1.1.70100
 				- Minor Bug Fixes.
 
