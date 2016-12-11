@@ -1,7 +1,7 @@
 -- Titan [Class Hall]
 -- Description: Titan plug-in to open your Order Hall
 -- Author: r1fT
--- Version: v1.1.2.70100
+-- Version: v1.1.3.70100
 -- Hash: @project-hash@
 
 local _G = getfenv(0);
@@ -347,7 +347,7 @@ function TitanPanelRightClickMenu_PrepareClassHallMenu()
 		info.func = function()
 			ClassHallProfile = name
 		end
-		UIDropDownMenu_AddButton(info, _G["UIDROPDOWNMENU_MENU_LEVEL"]);
+		Lib_UIDropDownMenu_AddButton(info, _G["UIDROPDOWNMENU_MENU_LEVEL"]);
 	end
 	TitanPanelRightClickMenu_AddSpacer();
 	TitanPanelRightClickMenu_AddCommand(L["TITAN_PANEL_MENU_HIDE"], TITAN_ClassHall_ID, TITAN_PANEL_MENU_FUNC_HIDE);
@@ -358,7 +358,7 @@ function TitanPanelRightClickMenu_PrepareClassHallMenu()
 			TPClassHall.chbuttonstate = "false"
 			HideClassHallButton()
 		end
-		UIDropDownMenu_AddButton(info, _G["UIDROPDOWNMENU_MENU_LEVEL"]);
+		Lib_UIDropDownMenu_AddButton(info, _G["UIDROPDOWNMENU_MENU_LEVEL"]);
 	else
 		local info = {};
 		info.text = "Show Class Hall Button";
@@ -366,7 +366,7 @@ function TitanPanelRightClickMenu_PrepareClassHallMenu()
 			TPClassHall.chbuttonstate = "true"
 			HideClassHallButton()
 		end
-		UIDropDownMenu_AddButton(info, _G["UIDROPDOWNMENU_MENU_LEVEL"]);
+		Lib_UIDropDownMenu_AddButton(info, _G["UIDROPDOWNMENU_MENU_LEVEL"]);
 	end
 end
 
